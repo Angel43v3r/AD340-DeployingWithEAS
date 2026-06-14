@@ -194,13 +194,18 @@ By default, EAS builds Android apps as `.aab` (App Bundle) files for the Google 
 ### Step 4: Run the Build
 
 #### For Android APK:
-```
+```bash
 npx eas build --platform android --profile preview
 ```
 
 #### -OR- if installed globally
-```
+```bash
 eas build --platform android --profile preview
+```
+
+#### -OR-
+```bash
+eas build -p android
 ```
 
 #### For iOS (need Apple Developer account):
