@@ -1,32 +1,39 @@
-import {
-  View,
-  Text,
-  FlatList,
-  Pressable,
-  StyleSheet,
-} from 'react-native';
-import { router } from 'expo-router';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { router, useFocusEffect } from 'expo-router';
+import { useState, useCallback } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const recipes = [
-  {
-    id: '1',
-    name: 'Spaghetti',
-    ingredients:
-      'Pasta\nTomato Sauce\nParmesan Cheese',
-    directions:
-      '1. Boil pasta\n2. Heat sauce\n3. Mix together\n4. Serve',
-  },
-  {
-    id: '2',
-    name: 'Chicken Salad',
-    ingredients:
-      'Chicken Breast\nLettuce\nTomatoes\nDressing',
-    directions:
-      '1. Grill chicken\n2. Chop vegetables\n3. Mix ingredients\n4. Add dressing',
-  },
-];
+type RecipeData = {
+  id: string;
+  name: string;
+  ingredients: string;
+  directions: string;
+};
 
 export default function RecipesScreen() {
+  const [recipes, setRecipes] = useState<RecipeData[]>([]);
+
+  useFocusEffect(
+  useCallback(() => {
+    const loadRecipes = async () => {
+      try {
+        const data =
+          await AsyncStorage.getItem('recipes');
+
+        if (data) {
+          setRecipes(JSON.parse(data));
+        } else {
+          setRecipes([]);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    loadRecipes();
+  }, [])
+);
+
   return (
     <View style={styles.container}>
       <FlatList
@@ -38,6 +45,7 @@ export default function RecipesScreen() {
               router.push({
                 pathname: '/recipe',
                 params: {
+                  id: item.id,
                   name: item.name,
                   ingredients: item.ingredients,
                   directions: item.directions,

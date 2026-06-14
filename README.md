@@ -116,9 +116,7 @@ npm install --global eas-cli
 
 #### For Recipe Saver install:
 ```bash
-npm install @react-navigation/native
-npm install @react-navigation/native-stack
-npx expo install react-native-screens react-native-safe-area-context
+npx expo install @react-native-async-storage/async-storage
 ```
 
 **Reference:** https://docs.expo.dev/eas/cli/ 

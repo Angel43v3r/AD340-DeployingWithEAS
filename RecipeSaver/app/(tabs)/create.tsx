@@ -1,20 +1,14 @@
 import { useState } from 'react';
-import {
-  ScrollView,
-  Text,
-  TextInput,
-  Pressable,
-  Alert,
-  StyleSheet,
-} from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput } from 'react-native';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CreateRecipeScreen() {
   const [name, setName] = useState('');
   const [ingredients, setIngredients] = useState('');
   const [directions, setDirections] = useState('');
 
-  const saveRecipe = () => {
+  const saveRecipe = async () => {
     if (!name.trim()) {
       Alert.alert(
         'Missing Recipe Name',
@@ -23,12 +17,38 @@ export default function CreateRecipeScreen() {
       return;
     }
 
-    Alert.alert(
-      'Recipe Saved',
-      `${name} was saved successfully!`
-    );
+    try {
+      const existingRecipes =
+        await AsyncStorage.getItem('recipes');
 
-    router.back();
+      const recipes = existingRecipes
+        ? JSON.parse(existingRecipes)
+        : [];
+
+      const newRecipe = {
+        id: Date.now().toString(),
+        name,
+        ingredients,
+        directions,
+      };
+
+      recipes.push(newRecipe);
+
+      await AsyncStorage.setItem(
+        'recipes',
+        JSON.stringify(recipes)
+      );
+
+      Alert.alert(
+        'Recipe Saved',
+        `${name} was saved successfully!`
+      );
+
+      router.back();
+    } catch (error) {
+      Alert.alert('Error', 'Failed to save recipe.');
+      console.error(error);
+    }
   };
 
   return (
@@ -37,7 +57,7 @@ export default function CreateRecipeScreen() {
 
       <TextInput
         style={styles.input}
-        placeholder="Chicken Alfredo"
+        placeholder="Example: Chicken Alfredo"
         value={name}
         onChangeText={setName}
       />
@@ -49,9 +69,10 @@ export default function CreateRecipeScreen() {
         multiline
         value={ingredients}
         onChangeText={setIngredients}
-        placeholder={`2 Chicken Breasts
-1 Cup Cream
-Parmesan Cheese`}
+        placeholder={`Example: 2 Chicken Breasts
+                  1 cup Heavy Cream
+                  Parmesan Cheese
+                  Garlic`}
       />
 
       <Text style={styles.label}>Directions</Text>
@@ -61,10 +82,11 @@ Parmesan Cheese`}
         multiline
         value={directions}
         onChangeText={setDirections}
-        placeholder={`1. Cook chicken
-2. Make sauce
-3. Combine ingredients
-4. Serve`}
+        placeholder={`Example: 1. Fry the Garlic
+                  2. chicken
+                  3. Make sauce
+                  4. Combine ingredients
+                  5. Serve`}
       />
 
       <Pressable
@@ -94,7 +116,7 @@ const styles = StyleSheet.create({
 
   input: {
     borderWidth: 1,
-    borderColor: '#2D5F8',
+    borderColor: '#82D5F8',
     borderRadius: 10,
     padding: 12,
     backgroundColor: '#fff',
